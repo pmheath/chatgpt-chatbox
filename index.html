@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Chat Box</title>
+</head>
+<body>
+    <div id="chatbox">
+        <h2>Chat with GPT</h2>
+        <div id="chat-output"></div>
+        <input type="text" id="user-input" placeholder="Type your message here...">
+        <select id="model-select">
+            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+            <option value="text-davinci-003">Text-Davinci-003</option>
+            <option value="gpt-4">GPT-4</option>
+        </select>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('user-input').value;
+            const selectedModel = document.getElementById('model-select').value;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: selectedModel,
+                        prompt: input
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const outputDiv = document.getElementById('chat-output');
+                outputDiv.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
+                outputDiv.innerHTML += `<p><strong>GPT:</strong> ${data.choices[0].message.content}</p>`;
+                document.getElementById('user-input').value = '';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an error processing your request.');
+            }
+        }
+    </script>
+</body>
+</html>
